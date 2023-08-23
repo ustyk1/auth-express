@@ -9,7 +9,11 @@ app.use('/auth', authRouter);
 
 const start = async () => {
   try {
-    mongoose.connect('mongodb+srv://eugeniaustyk1:Qwerty-1@cluster1.en1agfw.mongodb.net/project?retryWrites=true&w=majority');
+    await mongoose.connect('mongodb+srv://eugeniaustyk1:Qwerty-1@cluster1.en1agfw.mongodb.net/project?retryWrites=true&w=majority')
+      .then(
+        () => console.log('DB connected'),
+        err => console.log(err)
+      );
     app.listen(PORT, () => {
       console.log(`Server started on port ${PORT}`);
     });
