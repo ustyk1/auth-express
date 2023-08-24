@@ -3,9 +3,11 @@ const mongoose = require('mongoose');
 const PORT = process.env.PORT || 5000;
 const app = express();
 const authRouter = require('./authRouter');
+const newsRouter = require('./newsRouter');
 
 app.use(express.json());
 app.use('/auth', authRouter);
+app.use('/news', newsRouter);
 
 const start = async () => {
   try {

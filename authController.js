@@ -5,18 +5,17 @@ const { validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
 const { jwtSecret } = require('./config');
 
-const genetareAccessToken = (id, email, username, roles) => {
+const generateeAccessToken = ({id, email, firstName, roles, sex, phone}) => {
   const payload = {
     id,
     email,
-    username,
-    roles
+    firstName,
+    roles,
+    sex,
+    phone
   }
-
   return jwt.sign(payload, jwtSecret, {expiresIn: '1h'})
 }
-
-
 
 class authController {
 
@@ -26,13 +25,11 @@ class authController {
       if (!result.isEmpty()) {
         return res.json({ message: 'Помилка валідації', errors: result.array() });
       }
-  
       
-      //method http POST
-      const {userName, surname, email, password, confirmPassword, sex, phone} = req.body;
-      const condidate = await User.findOne({ email });
+      const {firstName, lastName, email, password, confirmPassword, sex, phone} = req.body;
+      const candidate = await User.findOne({ email });
       
-      if (condidate) {
+      if (candidate) {
         return res.status(400).json({ message: 'Користувач з такою поштою уже існує' })
       }
       
@@ -42,24 +39,21 @@ class authController {
 
       const hashPassword = bcrypt.hashSync(password, 8);
 
-      const userRole = await Role.findOne({value: 'USER'}); // шукаємо в базі 
-      // const userRole = await Role.findOne({ value: 'ADMINISTRATOR' }); // шукаємо в базі 
+      // const userRole = await Role.findOne({value: 'USER'}); // шукаємо в базі
+      const userRole = await Role.findOne({ value: 'ADMINISTRATOR' }); // шукаємо в базі
 
       const user = new User({
-        userName, 
-        surname,
+        firstName,
+        lastName,
         email,
-        password: hashPassword, 
-        confirmPassword: hashPassword,
+        password: hashPassword,
         roles: [userRole.value],
         sex,
         phone
       });
 
       await user.save();
-
       return res.status(200).json({ message: 'Користувач успішно зареєстрований' })
-
     } catch (error) {
       console.log(error);
       res.status(400).json({ message: 'Registration error' })
@@ -80,7 +74,15 @@ class authController {
         return res.status(400).json({ message: 'Невірний логін або пароль' });
       }
 
-      const token = genetareAccessToken(user._id, user.email, user.username, user.roles);
+      const userDto = {
+        id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        roles: user.roles,
+        sex: user.sex,
+        phone: user.phone
+      }
+      const token = generateeAccessToken(userDto);
       return res.json({token});
 
     } catch (error) {
@@ -96,11 +98,28 @@ class authController {
       // await userRole.save();
       // await adminRole.save();
 
-      res.json('server work')
+      const users = await User.find();
+      res.json(users);
     } catch (error) {
       console.log(error);
     }
   }
+
+  async delete(req, res) {
+    const id = req.params.id;
+
+    try {
+      const result = await User.deleteOne({ _id: id });
+
+      if (result.deletedCount === 0) {
+        res.status(400).json({message: 'Користувача не знайдено'})
+      }
+
+      res.status(200).json(result);
+    } catch (error) {
+      console.log(error)
+    }
+  };
 }
 
 module.exports = new authController();

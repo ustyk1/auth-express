@@ -11,19 +11,19 @@ const validationSchema = {
       bail: true,
     } 
   },
-  userName: {
+  firstName: {
     trim: true,
     notEmpty: {
-      errorMessage: 'UserName має бути заповненим',
+      errorMessage: 'firstName має бути заповненим',
     },
     isString: {
-      errorMessage: 'UserName не має бути числом',
+      errorMessage: 'firstName не має бути числом',
     }
   },
-  surname: {
+  lastName: {
     trim: true,
     notEmpty: {
-      errorMessage: 'Surname має бути заповненим',
+      errorMessage: 'lastName має бути заповненим',
     },
   },
   password: {
