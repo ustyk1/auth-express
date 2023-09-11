@@ -1,7 +1,7 @@
 const Router = require('express');
 const router = new Router();
-const controller = require('./newsController');
-const roleMiddleware = require('./widdlewares/roleMiddleware');
+const controller = require('../controllers/newsController');
+const roleMiddleware = require('../widdlewares/roleMiddleware');
 
 router.get('/getAll', roleMiddleware(['ADMINISTRATOR', 'USER']), controller.getAll);
 router.post('/create', roleMiddleware(['ADMINISTRATOR']), controller.create);

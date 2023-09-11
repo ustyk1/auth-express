@@ -1,5 +1,11 @@
-const jwt = require('jsonwebtoken');
-const {jwtSecret} = require('../config');
+const {
+  ReasonPhrases,
+  StatusCodes,
+  getReasonPhrase,
+  getStatusCode,
+} = require('http-status-codes');
+const tokenService = require('../services/tokenService');
+const {TokenExpiredError} = require("jsonwebtoken");
 
 module.exports = (req, res, next) => {
   if (req.method === 'OPTIONS') {
@@ -10,18 +16,19 @@ module.exports = (req, res, next) => {
     const authorizationHeader = req.headers.authorization;
     const accessToken = authorizationHeader.split(' ')[1];
     if (!accessToken) {
-        return res.status(401).json({message: 'Unauthorized1'});
+        return res.status(StatusCodes.UNAUTHORIZED).json({message: 'Unauthorized1'});
     }
 
-    const userData = jwt.verify(accessToken, jwtSecret);
+    const userData = tokenService.validateAccessToken(accessToken);
     if (!userData) {
-      return next( res.status(401).json({message: 'Unauthorized2'}) );
+      return next( res.status(StatusCodes.UNAUTHORIZED).json({message: 'Unauthorized2'}) );
     }
-
     req.user = userData;
     next();
   } catch (e) {
-    console.log(e);
-    return res.status(401).json({message: 'Unauthorized3'})
+    if (e instanceof TokenExpiredError) {
+      return next(res.status(StatusCodes.UNAUTHORIZED).json({message: 'Refresh token was expired. Please make a new signin request'}))
+    }
+    return res.status(StatusCodes.UNAUTHORIZED).json({message: 'Unauthorized3'})
   }
 }

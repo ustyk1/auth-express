@@ -1,4 +1,5 @@
-const News = require('./models/News');
+const News = require('../models/News');
+const {StatusCodes} = require("http-status-codes");
 
 class newsController {
 
@@ -8,7 +9,7 @@ class newsController {
 
       const candidate = await News.findOne({ title });
       if (candidate) {
-        return res.status(400).json({ message: 'Така новина вже існує' })
+        return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Така новина вже існує' })
       }
 
       const news = new News({
@@ -17,17 +18,17 @@ class newsController {
         author
       });
     await news.save();
-    return res.status(200).json({ message: 'Новина успішно створена' })
+    return res.status(StatusCodes.OK).json({ message: 'Новина успішно створена' })
     } catch (error) {
       console.log(error);
-      res.status(400).json({ message: 'Creation error' })
+      res.status(StatusCodes.BAD_REQUEST).json({ message: 'Creation error' })
     }
   }
 
   async getAll(req, res) {
     try {
       const news = await News.find();
-      res.json({news});
+      res.status(StatusCodes.OK).json({news});
     } catch (error) {
       console.log(error);
     }
@@ -39,7 +40,7 @@ class newsController {
     try {
       const news = await News.findOne({_id: id});
       if (!news) {
-        res.status(400).json({message: 'Новина не знайдена'})
+        res.status(StatusCodes.BAD_REQUEST).json({message: 'Новина не знайдена'})
       }
       res.json({news});
     } catch (error) {
@@ -52,12 +53,12 @@ class newsController {
     try {
       const news = await News.findOne({_id: id});
       if (!news) {
-        res.status(400).json({message: 'Новина не знайдена'})
+        res.status(StatusCodes.BAD_REQUEST).json({message: 'Новина не знайдена'})
       }
 
       const { title, description, author } = req.body;
       const result = await News.updateOne({_id: id}, {title, description, author});
-      res.json(result)
+      res.status(StatusCodes.OK).json(result);
 
     } catch (error) {
       console.log(error);
@@ -72,10 +73,10 @@ class newsController {
       console.log('result', result);
 
       if (result.deletedCount === 0) {
-        res.status(400).json({message: 'Новина не знайдена'})
+        res.status(StatusCodes.BAD_REQUEST).json({message: 'Новина не знайдена'})
       }
 
-      res.status(200).json(result);
+      res.status(StatusCodes.OK).json(result);
     } catch (error) {
       console.log(error)
     }

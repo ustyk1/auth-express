@@ -1,4 +1,10 @@
 const jwt = require('jsonwebtoken');
+const {
+  ReasonPhrases,
+  StatusCodes,
+  getReasonPhrase,
+  getStatusCode,
+} = require('http-status-codes');
 const {jwtSecret} = require('../config');
 
 module.exports = (roles) => {
@@ -12,7 +18,7 @@ module.exports = (roles) => {
       const accessToken = authorizationHeader.split(' ')[1];
 
       if(!accessToken) {
-          return res.status(401).json({message: 'Unauthorized'});
+          return res.status(StatusCodes.UNAUTHORIZED).json({message: 'Unauthorized'});
       }
 
       const {roles: userRoles} = jwt.verify(accessToken, jwtSecret);
@@ -25,13 +31,13 @@ module.exports = (roles) => {
       })
 
       if (!hasAccess) {
-        return res.status(403).json({message: 'Access is denied'});
+        return res.status(StatusCodes.FORBIDDEN).json({message: 'Access is denied'});
       }
 
       next();
     } catch (e) {
       console.log(e);
-      return res.status(401).json({message: 'Unauthorized'});
+      return res.status(StatusCodes.UNAUTHORIZED).json({message: 'Unauthorized'});
     }
   }
 }

@@ -1,4 +1,5 @@
 const {Schema, model} = require('mongoose');
+const {isBoolean} = require("validator");
 
 const User = new Schema({
   firstName: {
@@ -26,6 +27,10 @@ const User = new Schema({
   phone: {
     type: String,
     required: true
+  },
+  isActivated: {
+    type: Boolean,
+    default: false
   }
 }); 
 
