@@ -15,6 +15,10 @@ module.exports = (roles) => {
 
     try {
       const authorizationHeader = req.headers.authorization;
+      if (!authorizationHeader) {
+        return res.status(StatusCodes.UNAUTHORIZED).json({message: 'Unauthorized4'});
+      }
+
       const accessToken = authorizationHeader.split(' ')[1];
 
       if(!accessToken) {
@@ -36,7 +40,7 @@ module.exports = (roles) => {
 
       next();
     } catch (e) {
-      console.log(e);
+      console.log('at roleMiddleware error: ', e);
       return res.status(StatusCodes.UNAUTHORIZED).json({message: 'Unauthorized'});
     }
   }

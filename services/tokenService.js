@@ -3,8 +3,8 @@ const Token = require('../models/Token');
 const {jwtSecret, jwtSecretRefresh} = require("../config");
 
 class TokenService {
-  generateTokens({id, email, firstName, roles, sex, phone}) {
-    const payload = {id, email, firstName, roles, sex, phone};
+  generateTokens({id, email, firstName, lastName, roles, sex, phone}) {
+    const payload = {id, email, firstName, lastName, roles, sex, phone};
     const accessToken = jwt.sign(payload, jwtSecret, {expiresIn: '30m'});
     const refreshToken = jwt.sign(payload, jwtSecretRefresh, {expiresIn: '30d'});
     return {
@@ -37,6 +37,7 @@ class TokenService {
   validateRefreshToken(token) {
     try {
       const userData = jwt.verify(token, jwtSecretRefresh)
+      console.log(' jwt.verify userData', userData)
       return userData;
     } catch (e) {
       return null;

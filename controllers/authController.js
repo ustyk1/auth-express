@@ -30,7 +30,7 @@ class authController {
         return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Confirm password doesn`t match' })
       }
 
-      // const hashPassword = bcrypt.hashSync(password, hash);
+      const hashPassword = bcrypt.hashSync(password, hash);
 
       const userRole = await Role.findOne({value: 'USER'}); // шукаємо в базі
       // const userRole = await Role.findOne({ value: 'ADMINISTRATOR' }); // шукаємо в базі
@@ -39,8 +39,8 @@ class authController {
         firstName,
         lastName,
         email,
-        // password: hashPassword,
-        password,
+        password: hashPassword,
+        // password,
         roles: [userRole.value],
         sex,
         phone
@@ -80,14 +80,14 @@ class authController {
 
       transporter.sendMail(mailOptions, (error) => {
         if (error) {
-          console.log(error);
+          console.log('at transporter error', error);
           return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({message: 'Email not send'});
         }
         return res.status(StatusCodes.OK).json({message: 'The activation letter has been sent'});
       });
       // return res.status(StatusCodes.OK).json({ message: 'Користувач успішно зареєстрований' })
     } catch (error) {
-      console.log(error);
+      console.log('at registration error: ',error);
       res.status(StatusCodes.BAD_REQUEST).json({ message: 'Registration error' })
     }
   }
@@ -105,15 +105,18 @@ class authController {
         return res.status(StatusCodes.BAD_REQUEST).json({ message: `Користувач не підтвердив пошту` })
       }
 
-      const isValidPassword = bcrypt.compare(password, user.password);
-      if (!isValidPassword) {
-        return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Невірний логін або пароль' });
-      }
+      const isValidPassword = await bcrypt.compare(password, user.password);
+      console.log('isValidPassword', isValidPassword);
+
+      // if (!isValidPassword) {
+      //   return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Невірний логін або пароль' });
+      // }
 
       const userDto = {
         id: user._id,
         email: user.email,
         firstName: user.firstName,
+        lastName: user.lastName,
         roles: user.roles,
         sex: user.sex,
         phone: user.phone
@@ -124,7 +127,7 @@ class authController {
 
       return res.json({accessToken, refreshToken});
     } catch (error) {
-      console.log(error);
+      console.log('at login error: ', error);
       return res.status(StatusCodes.BAD_REQUEST).json({message: 'Login error'})
     }
   }
@@ -139,12 +142,13 @@ class authController {
       const users = await User.find();
       res.json(users);
     } catch (error) {
-      console.log(error);
+      console.log('at getUsers error: ', error);
     }
   }
 
   async delete(req, res) {
     const id = req.params.id;
+    console.log('id', id)
 
     try {
       const user = await User.findOneAndDelete({ _id: id });
@@ -155,7 +159,7 @@ class authController {
 
       res.status(StatusCodes.OK).json({message: 'User deleted successful'});
     } catch (error) {
-      console.log(error);
+      console.log('at delete error: ', error);
       res.status(StatusCodes.BAD_REQUEST).json({message: 'Delete error'});
     }
   };
@@ -185,7 +189,7 @@ class authController {
         refreshToken: tokens.refreshToken
       });
     } catch (error) {
-      console.log(error);
+      console.log('at refresh error: ', error);
       res.status(StatusCodes.BAD_REQUEST).json({ message: 'Refresh token error' });
     }
   };
@@ -200,7 +204,7 @@ class authController {
 
       return res.status(StatusCodes.OK).json({message: 'Logout successful'});
     } catch (error) {
-      console.log(error);
+      console.log('at logout error: ', error);
       res.status(StatusCodes.BAD_REQUEST).json({ message: 'Logout error' });
     }
   }
@@ -219,23 +223,23 @@ class authController {
         return res.status(StatusCodes.BAD_REQUEST).json({message: 'User not found'});
       }
 
-      // const isPasswordMatch = bcrypt.compare(currentPassword, user.password);
-      const isPasswordMatch = currentPassword === user.password;
+      const isPasswordMatch = bcrypt.compare(currentPassword, user.password);
+      // const isPasswordMatch = currentPassword === user.password;
       console.log('currentPassword', currentPassword)
       console.log('user.password', user.password)
       if (!isPasswordMatch) {
         return res.status(StatusCodes.BAD_REQUEST).json({message: 'Wrong current password'});
       }
 
-      // const newPasswordHash = bcrypt.hashSync(newPassword, hash);
-      // user.password = newPasswordHash;
-      user.password = newPassword;
+      const newPasswordHash = bcrypt.hashSync(newPassword, hash);
+      user.password = newPasswordHash;
+      // user.password = newPassword;
       await user.save();
 
       res.status(StatusCodes.OK).json({ message: 'Password changed successful' });
 
     } catch (error) {
-      console.log(error);
+      console.log('at changePassword error: ', error);
       res.status(StatusCodes.BAD_REQUEST).json({ message: 'Change password error' });
     }
   };

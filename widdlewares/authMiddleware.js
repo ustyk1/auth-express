@@ -12,16 +12,22 @@ module.exports = (req, res, next) => {
     next();
   }
 
+
   try {
     const authorizationHeader = req.headers.authorization;
-    const accessToken = authorizationHeader.split(' ')[1];
+    if (!authorizationHeader) {
+      return res.status(StatusCodes.UNAUTHORIZED).json({message: 'Unauthorized5'});
+    }
+
+    const accessToken = (authorizationHeader.split(' '))[1];
     if (!accessToken) {
         return res.status(StatusCodes.UNAUTHORIZED).json({message: 'Unauthorized1'});
     }
 
     const userData = tokenService.validateAccessToken(accessToken);
     if (!userData) {
-      return next( res.status(StatusCodes.UNAUTHORIZED).json({message: 'Unauthorized2'}) );
+      // return next( res.status(StatusCodes.UNAUTHORIZED).json({message: 'Unauthorized2'}) );
+      return res.status(StatusCodes.UNAUTHORIZED).json({message: 'Unauthorized2'});
     }
     req.user = userData;
     next();

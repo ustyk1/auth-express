@@ -20,7 +20,7 @@ class newsController {
     await news.save();
     return res.status(StatusCodes.OK).json({ message: 'Новина успішно створена' })
     } catch (error) {
-      console.log(error);
+      console.log('at create error: ', error);
       res.status(StatusCodes.BAD_REQUEST).json({ message: 'Creation error' })
     }
   }
@@ -30,7 +30,7 @@ class newsController {
       const news = await News.find();
       res.status(StatusCodes.OK).json({news});
     } catch (error) {
-      console.log(error);
+      console.log('at getAll error: ', error);
     }
   }
 
@@ -44,7 +44,7 @@ class newsController {
       }
       res.json({news});
     } catch (error) {
-       console.log(error);
+       console.log('at get error: ', error);
     }
   }
 
@@ -61,7 +61,7 @@ class newsController {
       res.status(StatusCodes.OK).json(result);
 
     } catch (error) {
-      console.log(error);
+      console.log('at update error: ', error);
     }
   }
 
@@ -78,7 +78,7 @@ class newsController {
 
       res.status(StatusCodes.OK).json(result);
     } catch (error) {
-      console.log(error)
+      console.log('at delete error: ', error)
     }
   };
 }

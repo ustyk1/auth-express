@@ -51,7 +51,7 @@ class userController {
             await tokenService.saveToken(userId, tokens.refreshToken);
             res.status(StatusCodes.OK).json({ tokens, message: 'Profile updated successful' });
         } catch (error) {
-            console.log(error);
+            console.log('at updateProfile error: ', error);
             res.status(StatusCodes.BAD_REQUEST).json({ message: 'Update profile error' });
         }
     }
@@ -85,7 +85,7 @@ class userController {
 
             res.status(StatusCodes.OK).json({ message: 'User updated successful' });
         } catch (error) {
-            console.log(error);
+            console.log('at updateUser error', error);
             res.status(StatusCodes.BAD_REQUEST).json({ message: 'Update user error' });
         }
     }
